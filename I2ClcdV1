@@ -1,0 +1,182 @@
+// this version contains an I2C interface with the lcd to simplify wiring
+// additionally, an led light was added to light up whenever a sample is taken by the sensors (to indicate that they're working)
+//include relevant libraries for the Arduino, sensor and Real time clock (RTC)
+#include <DHT.h>
+#include <DHT_U.h>
+#include <SD.h>
+#include <Wire.h>
+#include <RTClib.h>
+
+
+// set up lcd display
+#include <LiquidCrystal_I2C.h>
+byte address = 0x3F; int cols = 16; int rows = 2;
+LiquidCrystal_I2C lcd(address,cols,rows); // calling lcd display
+
+
+//define DHT pin
+#define DHTPIN 2        //  pin the sensor is connected to on arduino (can be any number from 2 - 13)
+#define DHTTYPE DHT11   // DHT11 is the type of temperature sensor I'm using  
+
+File myFile;
+
+// initialize DHT sensor for normal 16mhz Arduino
+DHT dht(DHTPIN, DHTTYPE);
+// initialize RTC (create an object RTC)
+RTC_DS1307 RTC;
+
+// set up photoresistor & led pin
+int lightPin = A0; float lightVal; int lightpercent; int ledPin = 10;
+
+void setup () {   // setup function runs once
+ 
+
+  Serial.begin(9600); //opens serial connection  
+  while (!Serial) {;} // wait for serial port to connect. N
+  
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    while (1); // stops program if sd can't be initialized
+  }
+  Serial.println("initialization done.");
+  
+  // creates a new data file if one does not already exist
+  if (not SD.exists("DATA.txt")) {
+    myFile = SD.open("DATA.txt", FILE_WRITE);
+    myFile.print("DATE (dd/mm/yyyy), TIME (hh:mm), TEMP (*C), HUMIDITY (%), LIGHT (%)");
+    myFile.println();
+    myFile.close();
+  }
+  
+  //initializing the DHT and RTC
+  dht.begin();
+  Wire.begin();
+  RTC.begin();
+  // initializing lcd display
+  lcd.begin(); // initialize lcd display
+  lcd.backlight(); // turn on backlight
+  
+
+  // Check to see if the RTC is keeping time.  
+  if (! RTC.isrunning()) {
+    Serial.println("RTC is NOT running!");
+    // Sets the RTC to the time that this sketch was compiled 
+    RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  pinMode(lightPin,INPUT);
+  pinMode(ledPin,OUTPUT);
+
+  
+}
+
+
+void loop () {
+  DateTime now = RTC.now(); //query the RTC for the current time; saves date/time
+
+  //read and store the temperature and humidity data
+  float t = dht.readTemperature();
+  int h = dht.readHumidity();
+
+  // read light sensor values
+  lightVal = analogRead(lightPin);
+  lightpercent = (lightVal * 100) / 1023;
+
+  if  (isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  //writes the current date, time, temperature, hummidity to SD card
+  myFile = SD.open("DATA.txt", FILE_WRITE);  
+  myFile.print(now.day(), DEC);  
+  myFile.print('/');
+  myFile.print(now.month(), DEC);
+  myFile.print('/');
+  myFile.print(now.year(), DEC);
+  myFile.print(',');
+  myFile.print(' ');
+  myFile.print(now.hour(), DEC);
+  myFile.print(':');
+  //inserts a 0 before minutes from 1-9 so that the time displays correctly
+  if (now.minute()<10) {
+    myFile.print('0');
+    myFile.print(now.minute(), DEC);
+  }
+  else {
+    myFile.print(now.minute(), DEC);
+  }
+  myFile.print(',');
+  myFile.print(' ');
+  myFile.print(t);
+  myFile.print(',');
+  myFile.print(' ');
+  myFile.print(h);
+  myFile.print(',');
+  myFile.print(' ');
+  myFile.print(lightpercent);
+  myFile.println();
+  myFile.close();
+
+  //writes the current date, time, temperature, hummidity to the serial monitor 
+  Serial.print(now.day(), DEC);
+  Serial.print('/');
+  Serial.print(now.month(), DEC);
+  Serial.print('/');
+  Serial.print(now.year(), DEC);
+  Serial.print(',');
+  Serial.print(' ');
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  //inserts a 0 before minutes from 1-9 so that the time displays correctly, ie 12:05 instead of 12:5 
+  if (now.minute()<10) {
+    Serial.print('0');
+    Serial.print(now.minute(), DEC);
+  }
+  else {
+    Serial.print(now.minute(), DEC);
+  }
+  
+  Serial.print(',');
+  Serial.print(' ');
+  Serial.print("Temp: ");
+  Serial.print(t);
+  Serial.print(" °C");
+  Serial.print(',');
+  Serial.print(' ');
+  Serial.print("Hum: ");
+  Serial.print(h);
+  Serial.print(',');
+  Serial.print(' ');
+  Serial.print("Light: ");
+  Serial.print(lightpercent);
+  Serial.print(" %");
+  Serial.println();
+  
+
+  // display data in LCD disp
+lcd.clear();
+lcd.setCursor(0,0);
+lcd.print("Hum: Temp: Sun:");
+
+lcd.setCursor(0,1);
+lcd.print(h); 
+lcd.setCursor(2,1);
+lcd.print("%");
+lcd.setCursor(5,1);
+lcd.print(t);
+lcd.setCursor(11,1);
+lcd.print(lightpercent);
+lcd.setCursor(13,1);
+lcd.print("%");
+
+digitalWrite(ledPin,HIGH);
+delay(500);
+digitalWrite(ledPin,LOW);
+
+  delay(30000); //wait time until the device reads the temperature again
+  
+}
+
