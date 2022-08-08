@@ -2,7 +2,7 @@
 This is a weather station that works with Arduino IDE.
 This program allows you to visualize the current ambient temperature in C, humidity, light level.  
 
-Version 2.0
+Version 1.0
 
 Current version uses:
 - Arduino UNO R3 board
