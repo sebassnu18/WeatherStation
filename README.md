@@ -22,7 +22,7 @@ Currently working on:
 
 
 Ideas for future version:
-- activate TFT LCD when being shaked (use GY-521 module)
+- activate TFT LCD when being shaked (use GY-521 module) > order from aliexpress
 - add solar cell to power it
 - add air usb port to extract the data from the sd card without opening the lid of the container box
 - add bluetooth module to send data wirelessly
