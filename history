@@ -1,0 +1,25 @@
+===================================
+Version 1.0
+July 2022
+Sebastian Nunez
+
+Components: 
+- Arduino UNO R3 board
+- LCD display 16x2
+- jumper wires (many)
+- potentiometer
+- DS1307 (external clock)
+- prototype expansion module + mini breadboard
+- photoresistor
+- 10k ohm resistor
+
+
+===================================
+Version 1.0
+August 2022
+Sebastian Nunez
+
+Hardware updates ("*" means added, "-" means removed):
+* red LED light
+* 330 Ohm resistor
+* I2C module (PCF8574 chip based backpack)
