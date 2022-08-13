@@ -18,7 +18,6 @@ Components:
 - I2C module (PCF8574 chip based backpack)
 
 Currently working on:
-- replacing SPI for I2C connection lcd
 - designing protective case
 - adding gy-521 module to detect shakings that trigger the lcd display
 - figuring out a better power source to allow long-term functioning (9v batteries die quickly & a wall outlet is not always available)
