@@ -33,6 +33,3 @@ Ideas for future version:
 
 Future steps:
 - solder all the connections 
-
-Optional additions: 
-- add led that blinks everytime a sample is taken (every 10 sec)
