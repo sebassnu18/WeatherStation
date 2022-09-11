@@ -67,6 +67,10 @@ void setup () {   // setup function runs once
     // Sets the RTC to the time that this sketch was compiled 
     RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
+  
+  // When time needs to be re-set on a previously configured device, the
+  // following line sets the RTC to the date & time this sketch was compiled
+  RTC.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   pinMode(lightPin,INPUT);
   pinMode(ledPin,OUTPUT);
